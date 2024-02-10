@@ -1,12 +1,16 @@
-//El método reduce() ejecuta una función reductora sobre cada elemento de un array, devolviendo como resultado un único valor.
+//reduce és una funció que rep un array i retorna un valor. Aquest valor pot ser un array, un objecte, un string, un number, etc.
+//reduce rep dos parametres, el primer és una funció (acumulador), i el segon és el valor inicial (valor).
 function sum(array) {
- const resultat = array.reduce((accum,currVal) => accum + currVal,0);
- return resultat;
+  //returns only those numbers that are even
+  const resultat = array.reduce((total, i) => total + i, 0);
+  return resultat;
 }
 
 function productAll(array) {
-  const arraySeparat = array.flat();
-  const resultat = arraySeparat.reduce((accum,currVal)=> accum * currVal,1);
+  const arraySeparat = array.flat(); //Flat separa l'array de l'array i retorna un array amb tots els elements.
+  console.log(arraySeparat);
+  const resultat = arraySeparat.reduce((total, i) => total * i, 1); //Començem amb posició 1 perque si comencem amb 0 el resultat sempre sera 0 perque 0*numero=0.
+  console.log(resultat);
   return resultat;
 }
 //-----------solució-1-objectify---------------//
