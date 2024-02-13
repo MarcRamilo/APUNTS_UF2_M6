@@ -6,243 +6,139 @@ export async function getMovieCount() {
   return data.count;
 }
 export async function listMovies() {
-  return fetch(`${BASE_URL}films/`)
-    .then((res) => res.json())
-    .then((json) => {
-      let movies = json.map((movie) => ({
-        name: movie.title,
-        director: movie.director,
-        release: movie.release_date,
-        episodeID: movie.episode_id,
-      }));
-      return movies;
-    });
-}
-// export async function listMoviesSorted() {
-//   try {
-//     const response = await fetch(`${BASE_URL}films/`);
-//     const movies = await response.json();
-//     const sortedMovies = movies.sort((a, b) => a.title.localeCompare(b.title));
-//     return sortedMovies;
-//   } catch (error) {
-//     console.error("Error:", error);
-//     throw error;
-//   }
-// }
-export async function listMoviesSorted() {
   try {
-    const response = await fetch(`${BASE_URL}films/`);
-    const movies = await response.json();
-    const sortedMovies = movies.sort(function (a, b) {
-      if (a.title < b.title) {
-        return -1;
-      }
-      if (a.title > b.title) {
-        return 1;
-      }
-      return 0;
-    });
-    return sortedMovies;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    const res = await fetch(`${BASE_URL}films/`);
+    const data = await res.json();
+    const movies = data.map((movie) => ({
+      name: movie.title,
+      diretor: movie.director,
+      release: movie.release_date,
+      episodeID: movie.episode_id,
+    }));
+    return movies;
+  } catch (e) {
+    console.error("Error", e);
   }
 }
-//Film ordenats per episodeID de forma ascendent.
+export async function listMoviesSorted() {
+  try {
+    const res = await fetch(`${BASE_URL}films/`);
+    const data = await res.json();
+    const moviesSorted = data.sort((a, b) => a.title.localeCompare(b.title));
+    // const moviesSortedByNumberAscending = data.sort((a,b) => a.episode_id-b.episode_id);
+    // const moviesSortedByNumberDescending = data.sort((a,b) => b.episode_id-a.episode_id);
+    return moviesSorted;
+  } catch (e) {
+    console.error("Error", e);
+  }
+}
 
 export async function listEvenMoviesSorted() {
   try {
-    const response = await fetch(`${BASE_URL}films/`);
-    const movies = await response.json();
-    //filter even episodeid %2
-    const evenMovies = movies.filter((movie) => movie.episode_id % 2 === 0);
-    //sort episodeid
-    const sortedEvenMovies = evenMovies.sort(
+    const res = await fetch(`${BASE_URL}films/`);
+    const data = await res.json();
+    const moviesEven = data.filter((movie) => movie.episode_id % 2 === 0);
+    const moviesSortedEven = moviesEven.sort(
       (a, b) => a.episode_id - b.episode_id
     );
-    return sortedEvenMovies;
-  } catch (error) {
-    console.log("Error:", error);
-    throw error;
+    return moviesSortedEven;
+  } catch (e) {
+    console.error("Error", e);
   }
 }
 
 export async function getMovieInfo(id) {
   try {
-    const response = await fetch(`${BASE_URL}films/`);
-    const movies = await response.json();
-    const moviesMap = movies.map((movie) => ({
-      characters: movie.characters,
+    const res = await fetch(`${BASE_URL}films/`);
+    const data = await res.json();
+    const movieFilter = data.filter((movie) => movie.episode_id === id);
+    const movieMaped = movieFilter.map((movie) => ({
+      charecets: movie.characters,
       episodeID: movie.episode_id,
       name: movie.title,
     }));
-    const charactersByIdFinalFiltered = moviesMap.filter(
-      (movie) => movie.episodeID === id
-    );
-    return charactersByIdFinalFiltered;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    return movieMaped;
+  } catch (e) {
+    console.error("Error", e);
   }
 }
 export async function getCharacterName(URL) {
   try {
-    const response = await fetch(`${URL}`);
-    const movies = await response.json();
-    const name = movies.name;
-    // console.log(name);
+    const res = await fetch(URL);
+    const data = await res.json();
+    const name = data.name;
     return name;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
+  } catch (e) {
+    console.error("Error", e);
   }
 }
 export async function getMovieCharacters(id) {
   try {
-    const response = await fetch(`${BASE_URL}films/`);
-    const movies = await response.json();
-    const charactersById = movies.map((movie) => ({
-      characters: movie.characters,
-    }));
-    const charactersURL = charactersById.flatMap((c) => c.characters);
-    const names = await Promise.allSettled(
-      charactersURL.map((url) => getCharacterName(url))
+    const res = await fetch(`${BASE_URL}/films`);
+    const data = await res.json();
+    const charetersById = data.filter((c) => c.episode_id === id);
+    const URLChareters = charetersById.map((c) => c.characters).flat();
+    const characterToName = await Promise.allSettled(
+      URLChareters.map((url) => getCharacterName(url))
     );
-    const charactersByIdFinal = movies.map((movie) => ({
+    const namesFiltered = characterToName.filter(
+      (name) => name.status === "fulfilled"
+    );
+
+    const arrayFinal = charetersById.map((movie) => ({
       name: movie.title,
       episodeID: movie.episode_id,
-      characters: names,
+      characters: namesFiltered.map((resultat) => resultat.value),
     }));
-    const charactersByIdFinalFiltered = charactersByIdFinal.filter(
-      (movie) => movie.episodeID === id
-    );
-    return charactersByIdFinalFiltered;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    return arrayFinal;
+  } catch (e) {
+    console.error("Error", e);
   }
 }
-export async function getCharacterHomeworldURL(URL) {
+export async function getCharacterHomeworld(URL) {
   try {
-    const response = await fetch(`${URL}`);
-    const movies = await response.json();
-    const name = movies.homeworld;
-    const nameHomeworld = getCharacterHomeworldName(name);
-    return nameHomeworld;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
-  }
-}
-export async function getCharacterHomeworldName(URL) {
-  try {
-    const response = await fetch(`${URL}`);
-    const movies = await response.json();
-    const name = movies.name;
-    return name;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    const res = await fetch(URL);
+    const data = await res.json();
+    const homeworldRes = await fetch(data.homeworld);
+    const homeworldData = await homeworldRes.json();
+    return homeworldData.name;
+  } catch (e) {
+    console.error("Error", e);
   }
 }
 export async function getMovieCharactersAndHomeworlds(id) {
   try {
-    const response = await fetch(`${BASE_URL}films/`);
-    const movies = await response.json();
-    // console.log("movies", movies);
-    const charactersById = movies.map((movie) => ({
-      characters: movie.characters,
-    }));
-    const charactersURL = charactersById.flatMap((c) => c.characters);
-    const names = await Promise.all(
-      charactersURL.map((url) => getCharacterName(url))
+    const res = await fetch(`${BASE_URL}/films`);
+    const data = await res.json();
+    const filtredChareters = data.filter((ep_id) => ep_id.episode_id === id);
+    const URLChareters = filtredChareters.flatMap((c) => c.characters);
+    const arrayCharacters = await Promise.allSettled(
+      URLChareters.map((url) => getCharacterName(url))
     );
-    const homeworlds = await Promise.all(
-      charactersURL.map((url) => getCharacterHomeworldURL(url))
+    const arrayHomewordl = await Promise.allSettled(
+      URLChareters.map((url) => getCharacterHomeworld(url))
     );
-
-    const charactersByIdFinal = movies.map((movie, index) => ({
-      name: movie.title,
-      episodeID: movie.episode_id,
-      characters: names.map((name, nameIndex) => ({
-        name: name,
-        homeworld: homeworlds[nameIndex],
+    const arrayChareter = data.map((c) => ({
+      episode_id: c.episode_id,
+      name: c.title,
+      characters: arrayCharacters.map((d, index) => ({
+        name: d.value,
+        homeworld: arrayHomewordl[index].value,
       })),
     }));
-    //filter characters by movie id
-    const charactersByIdFinalFiltered = charactersByIdFinal.filter(
-      (movie) => movie.episodeID === id
-    );
-    return charactersByIdFinalFiltered;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    return arrayChareter;
+  } catch (e) {
+    console.error("Error", e);
   }
 }
-export async function createMovie(id) {
-  try {
-    const movieData = await getMovieInfo(id);
-    const movie = movieData[0]; // getMovieInfo retorna un array amb un sol element 
-    const name = movie.name;
-    const characters = await getCharacters(movie.characters);
-    return new Movie(name, characters);
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
-  }
-}
-async function getCharacters(charactersList) {
-  try {
-    const characters = await Promise.all(
-      charactersList.map(async (url) => {
-        const response = await fetch(url);
-        const character = await response.json();
-        return character.name;
-      })
-    );
-    
-    return characters;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
-  }
-}
+
+export async function createMovie(id) {}
+async function getCharacters(charactersList) {}
 
 class Movie {
-  constructor(name, characters) {
-    this.name = name;
-    this.characters = characters;
-  }
+  async getHomeworlds() {}
 
-  async getHomeworlds() {
-    try {
-      const homeworlds = await Promise.all(
-        this.characters.map(async (url) => {
-          const response = await fetch(url);
-          const character = await response.json();
-          const homeworldResponse = await fetch(character.homeworld);
-          const homeworld = await homeworldResponse.json();
-          return homeworld.name;
-        })
-      );
-      console.log(homeworlds);
-      return homeworlds;
-    } catch (error) {
-      console.error("Error:", error);
-      throw error;
-    }
-  }
-
-  async getHomeworldsReverse() {
-    try {
-      const homeworlds = await this.getHomeworlds();
-      // console.log(homeworlds.sort().reverse());
-      return homeworlds.sort().reverse();
-    } catch (error) {
-      console.error("Error:", error);
-      throw error;
-    }
-  }
+  async getHomeworldsReverse() {}
 }
 
 // export async function getMovieCount() {
