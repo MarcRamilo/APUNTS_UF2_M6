@@ -1,139 +1,246 @@
 const BASE_URL = "https://swapi.info/api/";
-
+//data, 
 export async function getMovieCount() {
-  const res = await fetch("https://swapi.dev/api/films/");
-  const data = await res.json();
-  return data.count;
+ try {
+const res = await fetch (`${BASE_URL}films/`)
+if (!res.ok){
+  throw new Error('errrroror')
+}
+const data = await res.json();
+return data.length;
+  
+ } catch (error) {
+  console.error('Error', error)
+ }
 }
 export async function listMovies() {
-  try {
+ try{
     const res = await fetch(`${BASE_URL}films/`);
     const data = await res.json();
-    const movies = data.map((movie) => ({
-      name: movie.title,
-      diretor: movie.director,
-      release: movie.release_date,
-      episodeID: movie.episode_id,
-    }));
+    const movies = data.map((m)=>({
+      name: m.title,
+      director: m.director,
+      release: m.release_date,
+      episodeID: m.episode_id
+    }))
     return movies;
-  } catch (e) {
-    console.error("Error", e);
-  }
+ } catch (e){
+   console.error(e);
+ }
 }
 export async function listMoviesSorted() {
-  try {
+  try{
     const res = await fetch(`${BASE_URL}films/`);
-    const data = await res.json();
-    const moviesSorted = data.sort((a, b) => a.title.localeCompare(b.title));
-    // const moviesSortedByNumberAscending = data.sort((a,b) => a.episode_id-b.episode_id);
-    // const moviesSortedByNumberDescending = data.sort((a,b) => b.episode_id-a.episode_id);
-    return moviesSorted;
-  } catch (e) {
-    console.error("Error", e);
-  }
+    const data = await res.json()
+    const sortedMovies = data.sort((a, b) => a.title.localeCompare(b.title));
+    const movies = sortedMovies.map((m)=>({
+      name: m.title,
+      director: m.director,
+      release: m.release_date,
+      episodeID: m.episode_id
+    }))
+    // const sortedMovies = movies.sort(function (a, b) {
+      //       if (a.title < b.title) {
+      //         return -1;
+      //       }
+      //       if (a.title > b.title) {
+      //         return 1;
+      //       }
+      //       return 0;
+    
+    return movies;
+ } catch (e){
+   console.error(e);
+ }
 }
 
 export async function listEvenMoviesSorted() {
-  try {
-    const res = await fetch(`${BASE_URL}films/`);
-    const data = await res.json();
-    const moviesEven = data.filter((movie) => movie.episode_id % 2 === 0);
-    const moviesSortedEven = moviesEven.sort(
-      (a, b) => a.episode_id - b.episode_id
-    );
-    return moviesSortedEven;
-  } catch (e) {
-    console.error("Error", e);
-  }
+  const res = await fetch(`${BASE_URL}films/`);
+  const data = await res.json()
+  const moviesSorted = data.sort((a,b)=> a.episodeID - b.episodeID).reverse();
+  const filterMovies = moviesSorted.filter((movie) => movie.episodeID % 2 == 0);
+  return filterMovies
 }
 
 export async function getMovieInfo(id) {
-  try {
-    const res = await fetch(`${BASE_URL}films/`);
-    const data = await res.json();
-    const movieFilter = data.filter((movie) => movie.episode_id === id);
-    const movieMaped = movieFilter.map((movie) => ({
-      charecets: movie.characters,
-      episodeID: movie.episode_id,
-      name: movie.title,
-    }));
-    return movieMaped;
-  } catch (e) {
-    console.error("Error", e);
-  }
+  const res = await fetch(`${BASE_URL}films/`);
+  const data = await res.json();
+  const moviesFiltered = data.filter((movie)=> movie.episode_id == id);
+
+  const moviesMap = moviesFiltered.map((ma)=> ({
+    characters: ma.characters,
+    episodeID: ma.episode_id,
+    name: ma.title,
+  }))
+  return moviesMap;
+
 }
 export async function getCharacterName(URL) {
   try {
     const res = await fetch(URL);
-    const data = await res.json();
-    const name = data.name;
-    return name;
-  } catch (e) {
-    console.error("Error", e);
+    const character = await res.json();
+    //'Luke Skywalker'
+    return character.name;
+  } catch (e){
+    console.error(e);
+  }
+}
+export async function getCharacterHomeworlds(URL) {
+  try {
+    const res = await fetch(URL);
+    const character = await res.json();
+    //'Luke Skywalker'
+    const charectersFetch = await fetch (character.homeworld);
+    const charectersPromised = await charectersFetch.json();
+    return charectersPromised.name;
+  } catch (e){
+    console.error(e);
   }
 }
 export async function getMovieCharacters(id) {
   try {
-    const res = await fetch(`${BASE_URL}/films`);
-    const data = await res.json();
-    const charetersById = data.filter((c) => c.episode_id === id);
-    const URLChareters = charetersById.map((c) => c.characters).flat();
-    const characterToName = await Promise.allSettled(
-      URLChareters.map((url) => getCharacterName(url))
-    );
-    const namesFiltered = characterToName.filter(
-      (name) => name.status === "fulfilled"
-    );
+    const res = await fetch(`${BASE_URL}films/${id}`);
+    const movies = await res.json();
+    const characters = await Promise.all(movies.characters.map(getCharacterName));
+    const mapMovies  = {
+      name: movies.title,
+      episodeID: movies.episode_id,
+      characters: characters
+    };
+    return mapMovies;
+  } catch (e){
+    console.error(e);
+  }
+}
+// }
+// {
+//   "name": "A New Hope",
+//   "episodeID": 4,
+//   "characters": [
+//     "Luke Skywalker",
+//     "C-3PO",
+//     "R2-D2",
+//     "Darth Vader",
+//     "Leia Organa",
+//     "Owen Lars",
+//     "Beru Whitesun lars",
+//     "R5-D4",
+//     "Biggs Darklighter",
+//     "Obi-Wan Kenobi",
+//     "Wilhuff Tarkin",
+//     "Chewbacca",
+//     "Han Solo",
+//     "Greedo",
+//     "Jabba Desilijic Tiure",
+//     "Wedge Antilles",
+//     "Jek Tono Porkins",
+//     "Raymus Antilles"
+//   ]
+// }
 
-    const arrayFinal = charetersById.map((movie) => ({
-      name: movie.title,
-      episodeID: movie.episode_id,
-      characters: namesFiltered.map((resultat) => resultat.value),
-    }));
-    return arrayFinal;
-  } catch (e) {
-    console.error("Error", e);
-  }
-}
-export async function getCharacterHomeworld(URL) {
-  try {
-    const res = await fetch(URL);
-    const data = await res.json();
-    const homeworldRes = await fetch(data.homeworld);
-    const homeworldData = await homeworldRes.json();
-    return homeworldData.name;
-  } catch (e) {
-    console.error("Error", e);
-  }
-}
+
 export async function getMovieCharactersAndHomeworlds(id) {
   try {
-    const res = await fetch(`${BASE_URL}/films`);
-    const data = await res.json();
-    const filtredChareters = data.filter((ep_id) => ep_id.episode_id === id);
-    const URLChareters = filtredChareters.flatMap((c) => c.characters);
-    const arrayCharacters = await Promise.allSettled(
-      URLChareters.map((url) => getCharacterName(url))
-    );
-    const arrayHomewordl = await Promise.allSettled(
-      URLChareters.map((url) => getCharacterHomeworld(url))
-    );
-    const arrayChareter = data.map((c) => ({
-      episode_id: c.episode_id,
-      name: c.title,
-      characters: arrayCharacters.map((d, index) => ({
-        name: d.value,
-        homeworld: arrayHomewordl[index].value,
-      })),
-    }));
-    return arrayChareter;
-  } catch (e) {
-    console.error("Error", e);
-  }
+    const response = await fetch(`${BASE_URL}films/`);
+    const movies = await response.json();
+    const charFinalById = movies.filter((movie) => movie.episode_id === id)
+    const characters = charFinalById.map((movie)=> ({ characters: movie.characters}))
+    const charactersURL = characters.flatMap((c) => c.characters)
+    const names = await Promise.all(charactersURL.map((url) => getCharacterName(url)));
+    const homeworlds = await Promise.all(charactersURL.map((url) => getCharacterHomeworlds(url)));
+    const charFinal = charFinalById.map((movie) => ({
+      name: movie.title,
+      episodeID: movie.episode_id,
+      characters: names.map((name, index)=>({
+        name:name,
+        homeworld: homeworlds[index]
+      }))
+    }))
+    return charFinal;
+}catch (e){
+  console.error(e);
+}
 }
 
+// export async function getMovieCharactersAndHomeworlds(id) {
+//   try {
+//     const res = await fetch(`${BASE_URL}films/${id}`);
+//     const movie = await res.json();
+    
+//     const characterURLs = movie.characters;
+    
+//     const charactersPromises = characterURLs.map(async (url) => {
+//       const characterRes = await fetch(url);
+//       const character = await characterRes.json();
+//       const homeworldRes = await fetch(character.homeworld);
+//       const homeworld = await homeworldRes.json();
+
+//       return {
+//         name: character.name,
+//         homeworld: homeworld.name,
+//       };
+//     });
+
+//     const characters = await Promise.all(charactersPromises);
+
+//     const mappedMovie = {
+//       name: movie.title,
+//       episodeID: movie.episode_id,
+//       characters: characters,
+//     };
+
+//     return character;
+//   } catch (e) {
+//     console.error(e);
+//     // Handle error appropriately
+//     throw e;
+//   }
+// }
+
+
+// // Promise all
+
+// export async function getMovieCharactersAndHomeworlds(id) {
+//   try {
+//     const res = await fetch(`${BASE_URL}films/${id}`);
+//     const movie = await res.json();
+    
+//     const characterURLs = movie.characters;
+    
+//     const characters = await Promise.all(
+//       characterURLs.map(async (url) => {
+//         const characterRes = await fetch(url);
+//         const character = await characterRes.json();
+
+//         const homeworldRes = await fetch(character.homeworld);
+//         const homeworld = await homeworldRes.json();
+
+//         return {
+//           name: character.name,
+//           homeworld: homeworld.name,
+//         };
+//       })
+//     );
+
+//     const mappedMovie = {
+//       name: movie.title,
+//       episodeID: movie.episode_id,
+//       characters: characters,
+//     };
+
+//     return mappedMovie;
+//   } catch (e) {
+//     console.error(e);
+//     // Handle error appropriately
+//     throw e;
+//   }
+// }
+
+
+///
+
 export async function createMovie(id) {}
-async function getCharacters(charactersList) {}
+
 
 class Movie {
   async getHomeworlds() {}
