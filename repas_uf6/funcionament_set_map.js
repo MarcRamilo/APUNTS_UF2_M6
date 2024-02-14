@@ -52,3 +52,58 @@ miMapa.forEach((valor, clave) => {
 // Obtener el tamaño del mapa
 console.log(miMapa.size); // Devuelve 2
 // Los conjuntos (Set) son útiles cuando necesitas almacenar valores únicos, mientras que los mapas (Map) son útiles cuando necesitas almacenar pares clave-valor y acceder a ellos de manera eficiente. Estas estructuras de datos proporcionan una forma conveniente de manejar datos en JavaScript.
+
+
+// // Métodos en JavaScript de set y map: size, add, has, delete y clear
+
+//// Set:
+// Creación de un conjunto (Set)
+const miSet = new Set();
+
+// Añadir elementos al conjunto
+miSet.add('a');
+miSet.add('b');
+miSet.add('c');
+
+// Obtener la cantidad de elementos en el conjunto
+console.log(miSet.size); // Devuelve 3
+
+// Verificar si un elemento está en el conjunto
+console.log(miSet.has('b')); // Devuelve true
+
+// Eliminar un elemento del conjunto
+miSet.delete('a');
+
+// Limpiar el conjunto
+miSet.clear();
+
+// Verificar si el conjunto está vacío
+console.log(miSet.size); // Devuelve 0
+
+//// Map:
+// Creación de un mapa (Map)
+const miMapa = new Map();
+
+// Añadir elementos al mapa
+miMapa.set('clave1', 'valor1');
+miMapa.set('clave2', 'valor2');
+miMapa.set('clave3', 'valor3');
+
+// Obtener la cantidad de elementos en el mapa
+console.log(miMapa.size); // Devuelve 3
+
+// Obtener el valor asociado a una clave
+console.log(miMapa.get('clave2')); // Devuelve 'valor2'
+
+// Verificar si una clave está en el mapa
+console.log(miMapa.has('clave3')); // Devuelve true
+
+// Eliminar un elemento del mapa
+miMapa.delete('clave1');
+
+// Limpiar el mapa
+miMapa.clear();
+
+// Verificar si el mapa está vacío
+console.log(miMapa.size); // Devuelve 0
+// Los conjuntos (Set) y los mapas (Map) son estructuras de datos útiles que proporcionan una forma conveniente de manejar datos en JavaScript. Pueden ser utilizados para almacenar y manipular datos de manera eficiente. Además, proporcionan métodos para agregar, eliminar y verificar la presencia de elementos, así como para obtener el tamaño de la estructura de datos.

@@ -138,7 +138,6 @@ export async function getMovieCharacters(id) {
 //   ]
 // }
 
-
 export async function getMovieCharactersAndHomeworlds(id) {
   try {
     const response = await fetch(`${BASE_URL}films/`);
@@ -165,6 +164,29 @@ export async function getMovieCharactersAndHomeworlds(id) {
     console.error(e);
   }
 }
+// export async function getMovieCharactersAndHomeworlds(id) {
+//   try {
+//     const response = await fetch(`${BASE_URL}films/`);
+//     const movies = await response.json();
+//     const moviesFiltered = movies.filter((m) => m.episode_id === id);
+//     const characters = moviesFiltered.map((movie) => ({ characters: movie.characters }));
+//     const charactersURL = characters.flatMap((c) => c.characters) //Fem el flatMap perquè el map ens retorna un array de arrays i volem un array de strings
+//     const names = await Promise.all(charactersURL.map(getCharacterName));
+//     const homeworld = await Promise.all(charactersURL.map(getCharacterHomeworlds));
+//     const characterDetails = names.map((name,Index) => ({
+//       name:name,
+//       homeworld:homeworld[Index]
+//     }))
+//     const charFinal = moviesFiltered.map((movie)=> ({
+//       name: movie.title,
+//       episodeID: movie.episode_id,
+//       characters: characterDetails
+//     }))
+//     return charFinal;
+//   } catch (e) {
+//     console.error(e);
+//   }
+// }
 
 // export async function getMovieCharactersAndHomeworlds(id) {
 //   try {
