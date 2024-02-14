@@ -143,23 +143,27 @@ export async function getMovieCharactersAndHomeworlds(id) {
   try {
     const response = await fetch(`${BASE_URL}films/`);
     const movies = await response.json();
-    const charFinalById = movies.filter((movie) => movie.episode_id === id)
-    const characters = charFinalById.map((movie)=> ({ characters: movie.characters}))
-    const charactersURL = characters.flatMap((c) => c.characters)
-    const names = await Promise.all(charactersURL.map((url) => getCharacterName(url)));
-    const homeworlds = await Promise.all(charactersURL.map((url) => getCharacterHomeworlds(url)));
+    const charFinalById = movies.filter((movie) => movie.episode_id === id);
+    const characters = charFinalById.map((movie) => ({ characters: movie.characters }));
+    // const charactersURL = characters.flatMap((c) => c.characters)
+    const charactersURL = characters.map((c) => c.characters).reduce((acc, val) => acc.concat(val), []);
+    const namesPromises = charactersURL.map((url) => getCharacterName(url));
+    const homeworldsPromises = charactersURL.map((url) => getCharacterHomeworlds(url));
+    const names = await Promise.all(namesPromises);
+    const homeworlds = await Promise.all(homeworldsPromises);
+    const characterDetails = names.map((name, index) => ({
+      name: name,
+      homeworld: homeworlds[index]
+    }));
     const charFinal = charFinalById.map((movie) => ({
       name: movie.title,
       episodeID: movie.episode_id,
-      characters: names.map((name, index)=>({
-        name:name,
-        homeworld: homeworlds[index]
-      }))
-    }))
+      characters: characterDetails
+    }));
     return charFinal;
-}catch (e){
-  console.error(e);
-}
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 // export async function getMovieCharactersAndHomeworlds(id) {
