@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Objectes de l'entorn del navegador</title>
+</head>
+<body>
+    <h1>Objectes de l'entorn del navegador</h1>
+
+    <!-- Desafiament 1: Obrir una finestra emergent -->
+    <button id="obrirFinestra">Obre Finestra Emergent</button>
+    <br>
+
+    <!-- Desafiament 2: Mostrar una alerta amb window -->
+    <button id="mostrarAlerta">Mostra Alerta</button>
+    <br>
+
+    <!-- Desafiament 3: Mostrar informació del navegador amb navigator -->
+    <div id="infoNavegador">
+        <h2>Informació del Navegador</h2>
+        <p>User Agent: <span id="userAgent"></span></p>
+        <p>Plataforma: <span id="platform"></span></p>
+        <p>Llenguatge: <span id="language"></span></p>
+        <p>Extensions: <span id="extensions"></span></p>
+    </div>
+
+    <!-- Desafiament 4: Canviar el títol de la pàgina amb document -->
+    <input type="text" id="nuevoTitulo" placeholder="Nou Títol">
+    <button id="cambiarTitulo">Canviar Títol</button>
+    <br>
+
+    <!-- Desafiament 5: Redirigir amb location -->
+    <button id="irAGoogle">Vés a Google</button>
+
+    <script>
+        // Desafiament 1: Obrir una finestra emergent
+        document.getElementById("obrirFinestra").addEventListener("click", function () {
+            const url = prompt("Introdueix la URL per a la finestra emergent:");
+            if (url) {
+                window.open(url, "_blank", "width=600,height=400,left=100,top=100");
+            }
+        });
+
+        // Desafiament 2: Mostrar una alerta amb window
+        document.getElementById("mostrarAlerta").addEventListener("click", function () {
+            window.alert("Aquesta és una alerta d'exemple.");
+        });
+
+        // Desafiament 3: Mostrar informació del navegador amb navigator
+        document.getElementById("userAgent").textContent = navigator.userAgent;
+        document.getElementById("platform").textContent = navigator.platform;
+        document.getElementById("language").textContent = navigator.language;
+        document.getElementById("extensions").textContent = navigator.plugins.length;
+
+        // Desafiament 4: Canviar el títol de la pàgina amb document
+        document.getElementById("cambiarTitulo").addEventListener("click", function () {
+            const nuevoTitulo = document.getElementById("nuevoTitulo").value;
+            document.title = nuevoTitulo;
+        });
+
+        // Desafiament 5: Redirigir amb location
+        document.getElementById("irAGoogle").addEventListener("click", function () {
+            if (navigator.onLine) {
+                location.href = "https://www.google.com";
+            } else {
+                alert("No estàs connectat a Internet.");
+            }
+        });
+    </script>
+</body>
+</html>
