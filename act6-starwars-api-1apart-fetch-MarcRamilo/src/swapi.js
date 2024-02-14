@@ -145,8 +145,8 @@ export async function getMovieCharactersAndHomeworlds(id) {
     const movies = await response.json();
     const charFinalById = movies.filter((movie) => movie.episode_id === id);
     const characters = charFinalById.map((movie) => ({ characters: movie.characters }));
-    // const charactersURL = characters.flatMap((c) => c.characters)
-    const charactersURL = characters.map((c) => c.characters).reduce((acc, val) => acc.concat(val), []);
+    // const charactersURL = characters.flatMap((c) => c.characters) //Fem el flatMap perquè el map ens retorna un array de arrays i volem un array de strings
+    const charactersURL = characters.map((c) => c.characters).reduce((acc, val) => acc.concat(val), []); // Fem el reduce perquè el map ens retorna un array de arrays i volem un array de strings
     const namesPromises = charactersURL.map((url) => getCharacterName(url));
     const homeworldsPromises = charactersURL.map((url) => getCharacterHomeworlds(url));
     const names = await Promise.all(namesPromises);
